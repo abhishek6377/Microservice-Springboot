@@ -1,24 +1,26 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.FeignClient.QuestionFeignClient;
 import com.example.demo.repo.QuizRepository;
 import com.example.model.Quiz;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class QuizImp implements QuizService {
 	
 	
-	private QuizRepository quizRepository;
-	
- 	public QuizImp(QuizRepository quizRepository) {
-		super();
-		this.quizRepository = quizRepository;
-	}
+    private final QuizRepository quizRepository;
+    private final QuestionFeignClient questionFeignClient;
+
+    public QuizImp(QuizRepository quizRepository, QuestionFeignClient questionFeignClient) {
+        this.quizRepository = quizRepository;
+        this.questionFeignClient = questionFeignClient;
+    }
 
 	@Override
 	public Quiz quizAdd(Quiz quiz) {
@@ -32,13 +34,25 @@ public class QuizImp implements QuizService {
 
 	@Override
 	public List<Quiz> getQuizs() {
-		
-		return quizRepository.findAll();
+	 List<Quiz> all = quizRepository.findAll();
+	 List<Quiz> updatedQuizzes = all.stream()
+			    .map(e -> {
+			        e.setQuestions(questionFeignClient.questionById(e.getId()));
+			        return e;
+			    })
+			    .collect(Collectors.toList());
+	 return updatedQuizzes;
+	 
 	}
 
 	@Override
 	public Quiz getById(long id) {
-		return quizRepository.findById(id).orElse(null);
+	Quiz orElse = quizRepository.findById(id).orElse(null);
+	if(orElse!=null) {
+		orElse.setQuestions(questionFeignClient.questionById(orElse.getId()));
+	}
+	
+	return orElse;
 		
 	}
 

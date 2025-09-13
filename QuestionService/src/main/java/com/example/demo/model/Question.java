@@ -1,12 +1,9 @@
-package com.example.model;
-
-import java.util.List;
+package com.example.demo.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,19 +13,15 @@ import lombok.ToString;
 @Entity
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public class Quiz {
+public class Question {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String title;
-	
-	@Transient
-	private List<Question>  questions;
-	
-	
+	private long questionId;
+	private String  question;
+	private long quizId;
 
 }
